@@ -38,11 +38,13 @@ class AddEditTaskViewModel(
     private val tasksRepository: TasksRepository
 ) : ViewModel(), TasksDataSource.GetTaskCallback {
 
-    // Two-way databinding, exposing MutableLiveData
-    val title = MutableLiveData<String>()
+    private val _title = MutableLiveData<String>()
+    val title: LiveData<String>
+        get() = _title
 
-    // Two-way databinding, exposing MutableLiveData
-    val description = MutableLiveData<String>()
+    private val _description = MutableLiveData<String>()
+    val description: LiveData<String>
+        get() = _description
 
     private val _dataLoading = MutableLiveData<Boolean>()
     val dataLoading: LiveData<Boolean>
@@ -87,8 +89,8 @@ class AddEditTaskViewModel(
     }
 
     override fun onTaskLoaded(task: Task) {
-        title.value = task.title
-        description.value = task.description
+        _title.value = task.title
+        _description.value = task.description
         taskCompleted = task.isCompleted
         _dataLoading.value = false
         isDataLoaded = true
@@ -99,24 +101,21 @@ class AddEditTaskViewModel(
     }
 
     // Called when clicking on fab.
-    internal fun saveTask() {
-        val currentTitle = title.value
-        val currentDescription = description.value
-
-        if (currentTitle == null || currentDescription == null) {
+    internal fun saveTask(title: String, description: String) {
+        if (title == null || description == null) {
             _snackbarText.value =  Event(R.string.empty_task_message)
             return
         }
-        if (Task(currentTitle, currentDescription ?: "").isEmpty) {
+        if (Task(title, description ?: "").isEmpty) {
             _snackbarText.value =  Event(R.string.empty_task_message)
             return
         }
 
         val currentTaskId = taskId
         if (isNewTask || currentTaskId == null) {
-            createTask(Task(currentTitle, currentDescription))
+            createTask(Task(title, description))
         } else {
-            val task = Task(currentTitle, currentDescription, currentTaskId)
+            val task = Task(title, description, currentTaskId)
                 .apply { isCompleted = taskCompleted }
             updateTask(task)
         }

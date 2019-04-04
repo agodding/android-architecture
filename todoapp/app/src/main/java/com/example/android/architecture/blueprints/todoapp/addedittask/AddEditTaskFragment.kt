@@ -21,50 +21,72 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.example.android.architecture.blueprints.todoapp.R
-import com.example.android.architecture.blueprints.todoapp.databinding.AddtaskFragBinding
-import com.example.android.architecture.blueprints.todoapp.util.setupSnackbar
+import com.example.android.architecture.blueprints.todoapp.util.showSnackbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.addtask_frag.add_task_description
+import kotlinx.android.synthetic.main.addtask_frag.add_task_title
+import kotlinx.android.synthetic.main.addtask_frag.container
+import kotlinx.android.synthetic.main.addtask_frag.refresh_layout
 
 /**
  * Main UI for the add task screen. Users can enter a task title and description.
  */
 class AddEditTaskFragment : Fragment() {
 
-    private lateinit var viewDataBinding: AddtaskFragBinding
+    lateinit var viewModel: AddEditTaskViewModel
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        viewModel = (activity as AddEditTaskActivity).obtainViewModel()
         setupFab()
-        viewDataBinding.viewmodel?.let {
-            view?.setupSnackbar(this, it.snackbarMessage, Snackbar.LENGTH_LONG)
-        }
         setupActionBar()
         loadData()
+        bindViewModel()
     }
 
     private fun loadData() {
-        // Add or edit an existing task?
-        viewDataBinding.viewmodel?.start(arguments?.getString(ARGUMENT_EDIT_TASK_ID))
+        viewModel.start(arguments?.getString(ARGUMENT_EDIT_TASK_ID))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.addtask_frag, container, false)
-        viewDataBinding = AddtaskFragBinding.bind(root).apply {
-            viewmodel = (activity as AddEditTaskActivity).obtainViewModel()
-        }
-        viewDataBinding.setLifecycleOwner(this.viewLifecycleOwner)
+
         setHasOptionsMenu(true)
         retainInstance = false
-        return viewDataBinding.root
+        return root
+    }
+
+    private fun bindViewModel() {
+        viewModel.apply {
+            dataLoading.observe(this@AddEditTaskFragment, Observer {
+                refresh_layout.isRefreshing = it
+                refresh_layout.isEnabled = it
+                container.visibility = if (it) View.VISIBLE else View.GONE
+            })
+            title.observe(this@AddEditTaskFragment, Observer {
+                add_task_title.setText(it)
+            })
+            description.observe(this@AddEditTaskFragment, Observer {
+                add_task_description.setText(it)
+            })
+            snackbarMessage.observe(this@AddEditTaskFragment, Observer {
+                it.getContentIfNotHandled()?.let { stringRes ->
+                    view?.showSnackbar(getString(stringRes), Snackbar.LENGTH_LONG)
+                }
+            })
+        }
     }
 
     private fun setupFab() {
         activity?.findViewById<FloatingActionButton>(R.id.fab_edit_task_done)?.let {
             it.setImageResource(R.drawable.ic_done)
-            it.setOnClickListener { viewDataBinding.viewmodel?.saveTask() }
+            it.setOnClickListener {
+                viewModel.saveTask(add_task_title.text.toString(), add_task_description.text.toString())
+            }
         }
     }
 

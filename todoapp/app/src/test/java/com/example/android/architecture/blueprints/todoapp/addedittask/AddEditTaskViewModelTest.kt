@@ -16,16 +16,13 @@
 package com.example.android.architecture.blueprints.todoapp.addedittask
 
 
-import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.android.architecture.blueprints.todoapp.LiveDataTestUtil
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksDataSource
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
-import com.example.android.architecture.blueprints.todoapp.util.any
 import com.example.android.architecture.blueprints.todoapp.util.capture
 import com.example.android.architecture.blueprints.todoapp.util.eq
-import com.example.android.architecture.blueprints.todoapp.util.mock
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Before
@@ -66,9 +63,7 @@ class AddEditTaskViewModelTest {
     @Test fun saveNewTaskToRepository_showsSuccessMessageUi() {
         // When the ViewModel is asked to save a task
         with(addEditTaskViewModel) {
-            description.value = "Some Task Description"
-            title.value = "New Task Title"
-            saveTask()
+            saveTask("New Task Title", "Some Task Description")
         }
 
         // Then a task is saved in the repository and the view updated
