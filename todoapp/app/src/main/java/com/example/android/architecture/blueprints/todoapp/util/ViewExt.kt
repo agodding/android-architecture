@@ -74,3 +74,7 @@ fun ScrollChildSwipeRefreshLayout.setSwipeRefreshLayoutOnRefreshListener(
         viewModel: TasksViewModel) {
     setOnRefreshListener { viewModel.loadTasks(true) }
 }
+
+fun View.setVisibility(visible: Boolean) {
+    this.visibility = if (visible) View.VISIBLE else View.GONE
+}

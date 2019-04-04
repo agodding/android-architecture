@@ -19,37 +19,57 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.example.android.architecture.blueprints.todoapp.R
-import com.example.android.architecture.blueprints.todoapp.databinding.StatisticsFragBinding
+import com.example.android.architecture.blueprints.todoapp.util.setVisibility
+import kotlinx.android.synthetic.main.statistics_frag.active_tasks_label
+import kotlinx.android.synthetic.main.statistics_frag.completed_tasks_label
+import kotlinx.android.synthetic.main.statistics_frag.empty_tasks_label
+import kotlinx.android.synthetic.main.statistics_frag.loading_label
+import kotlinx.android.synthetic.main.statistics_frag.statistics
 
 /**
  * Main UI for the statistics screen.
  */
 class StatisticsFragment : Fragment() {
 
-    private lateinit var viewDataBinding: StatisticsFragBinding
-
     private lateinit var statisticsViewModel: StatisticsViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?): View? {
-        viewDataBinding = DataBindingUtil.inflate(inflater, R.layout.statistics_frag, container,
-                false)
-        return viewDataBinding.root
+        return inflater.inflate(R.layout.statistics_frag, container,false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         statisticsViewModel = (activity as StatisticsActivity).obtainViewModel()
-        viewDataBinding.stats = statisticsViewModel
-        viewDataBinding.setLifecycleOwner(this.viewLifecycleOwner)
+        bindViewModel()
     }
 
     override fun onResume() {
         super.onResume()
         statisticsViewModel.start()
+    }
+
+    private fun bindViewModel() {
+        statisticsViewModel.apply {
+            dataLoading.observe(this@StatisticsFragment, Observer {
+                loading_label.setVisibility(it)
+                statistics.setVisibility(!it)
+            })
+            empty.observe(this@StatisticsFragment, Observer {
+                empty_tasks_label.setVisibility(it)
+                active_tasks_label.setVisibility(!it)
+                completed_tasks_label.setVisibility(!it)
+            })
+            numberOfActiveTasks.observe(this@StatisticsFragment, Observer {
+                active_tasks_label.text = resources.getString(R.string.statistics_active_tasks, it)
+            })
+            numberOfCompletedTasks.observe(this@StatisticsFragment, Observer {
+                completed_tasks_label.text = resources.getString(R.string.statistics_completed_tasks, it)
+            })
+        }
     }
 
     companion object {
