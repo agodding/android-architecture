@@ -17,7 +17,6 @@
 package com.example.android.architecture.blueprints.todoapp.tasks
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -27,12 +26,20 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Task
-import com.example.android.architecture.blueprints.todoapp.databinding.TasksFragBinding
-import com.example.android.architecture.blueprints.todoapp.util.setupSnackbar
+import com.example.android.architecture.blueprints.todoapp.util.setVisibility
+import com.example.android.architecture.blueprints.todoapp.util.showSnackbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.tasks_frag.filteringLabel
+import kotlinx.android.synthetic.main.tasks_frag.noTasks
+import kotlinx.android.synthetic.main.tasks_frag.noTasksAdd
+import kotlinx.android.synthetic.main.tasks_frag.noTasksMain
+import kotlinx.android.synthetic.main.tasks_frag.populated_tasks
+import kotlinx.android.synthetic.main.tasks_frag.refresh_layout
+import kotlinx.android.synthetic.main.tasks_frag.tasks_list
 import java.util.ArrayList
 
 /**
@@ -40,27 +47,24 @@ import java.util.ArrayList
  */
 class TasksFragment : Fragment() {
 
-    private lateinit var viewDataBinding: TasksFragBinding
     private lateinit var listAdapter: TasksAdapter
+    private lateinit var viewModel: TasksViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?): View? {
-        viewDataBinding = TasksFragBinding.inflate(inflater, container, false).apply {
-            viewmodel = (activity as TasksActivity).obtainViewModel()
-        }
         setHasOptionsMenu(true)
-        return viewDataBinding.root
+        return inflater.inflate(R.layout.tasks_frag, container, false)
     }
 
     override fun onResume() {
         super.onResume()
-        viewDataBinding.viewmodel?.start()
+        viewModel.start()
     }
 
     override fun onOptionsItemSelected(item: MenuItem) =
             when (item.itemId) {
                 R.id.menu_clear -> {
-                    viewDataBinding.viewmodel?.clearCompletedTasks()
+                    viewModel.clearCompletedTasks()
                     true
                 }
                 R.id.menu_filter -> {
@@ -68,7 +72,7 @@ class TasksFragment : Fragment() {
                     true
                 }
                 R.id.menu_refresh -> {
-                    viewDataBinding.viewmodel?.loadTasks(true)
+                    viewModel.loadTasks(true)
                     true
                 }
                 else -> false
@@ -80,13 +84,47 @@ class TasksFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewDataBinding.viewmodel?.let {
-            view?.setupSnackbar(this, it.snackbarMessage, Snackbar.LENGTH_LONG)
-        }
-        viewDataBinding.setLifecycleOwner(this.viewLifecycleOwner)
+        viewModel = (activity as TasksActivity).obtainViewModel()
+        bindViewModel()
         setupFab()
         setupListAdapter()
         setupRefreshLayout()
+    }
+
+    private fun bindViewModel() {
+        viewModel.apply {
+            snackbarMessage.observe(this@TasksFragment, Observer { event ->
+                event.getContentIfNotHandled()?.let {
+                    view?.showSnackbar(getString(it), Snackbar.LENGTH_LONG)
+                }
+            })
+            dataLoading.observe(this@TasksFragment, Observer {
+                refresh_layout.isRefreshing = it
+            })
+            empty.observe(this@TasksFragment, Observer {
+                populated_tasks.setVisibility(!it)
+                noTasks.setVisibility(it)
+            })
+            tasksAddViewVisible.observe(this@TasksFragment, Observer {
+                noTasksAdd.setVisibility(it)
+            })
+            currentFilteringLabel.observe(this@TasksFragment, Observer {
+                filteringLabel.text = getString(it)
+            })
+            noTaskIconRes.observe(this@TasksFragment, Observer {
+                ContextCompat.getDrawable(context!!, it)
+            })
+            items.observe(this@TasksFragment, Observer {
+                listAdapter.replaceData(it)
+            })
+            noTasksLabel.observe(this@TasksFragment, Observer {
+                noTasksMain.text = getString(it)
+            })
+        }
+
+        noTasksAdd.setOnClickListener {
+            viewModel.addNewTask()
+        }
     }
 
     private fun showFilteringPopUpMenu() {
@@ -95,7 +133,7 @@ class TasksFragment : Fragment() {
             menuInflater.inflate(R.menu.filter_tasks, menu)
 
             setOnMenuItemClickListener {
-                viewDataBinding.viewmodel?.run {
+                viewModel.run {
                     setFiltering(
                             when (it.itemId) {
                                 R.id.active -> TasksFilterType.ACTIVE_TASKS
@@ -115,30 +153,28 @@ class TasksFragment : Fragment() {
         activity?.findViewById<FloatingActionButton>(R.id.fab_add_task)?.let {
             it.setImageResource(R.drawable.ic_add)
             it.setOnClickListener {
-                viewDataBinding.viewmodel?.addNewTask()
+                viewModel.addNewTask()
             }
         }
     }
 
     private fun setupListAdapter() {
-        val viewModel = viewDataBinding.viewmodel
-        if (viewModel != null) {
-            listAdapter = TasksAdapter(ArrayList(0), viewModel)
-            viewDataBinding.tasksList.adapter = listAdapter
-        } else {
-            Log.w(TAG, "ViewModel not initialized when attempting to set up adapter.")
-        }
+        listAdapter = TasksAdapter(ArrayList(0), viewModel)
+        tasks_list.adapter = listAdapter
     }
 
     private fun setupRefreshLayout() {
-        viewDataBinding.refreshLayout.run {
+        refresh_layout.run {
             setColorSchemeColors(
                     ContextCompat.getColor(requireActivity(), R.color.colorPrimary),
                     ContextCompat.getColor(requireActivity(), R.color.colorAccent),
                     ContextCompat.getColor(requireActivity(), R.color.colorPrimaryDark)
             )
             // Set the scrolling view in the custom SwipeRefreshLayout.
-            scrollUpChild = viewDataBinding.tasksList
+            scrollUpChild = tasks_list
+            setOnRefreshListener {
+                viewModel.loadTasks(true)
+            }
         }
     }
 
