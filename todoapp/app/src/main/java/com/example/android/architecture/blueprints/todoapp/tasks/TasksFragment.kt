@@ -29,7 +29,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Task
-import com.example.android.architecture.blueprints.todoapp.util.setVisibility
+import com.example.android.architecture.blueprints.todoapp.util.setVisible
 import com.example.android.architecture.blueprints.todoapp.util.showSnackbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -102,11 +102,11 @@ class TasksFragment : Fragment() {
                 refresh_layout.isRefreshing = it
             })
             empty.observe(this@TasksFragment, Observer {
-                populated_tasks.setVisibility(!it)
-                noTasks.setVisibility(it)
+                populated_tasks.setVisible(!it)
+                noTasks.setVisible(it)
             })
             tasksAddViewVisible.observe(this@TasksFragment, Observer {
-                noTasksAdd.setVisibility(it)
+                noTasksAdd.setVisible(it)
             })
             currentFilteringLabel.observe(this@TasksFragment, Observer {
                 filteringLabel.text = getString(it)

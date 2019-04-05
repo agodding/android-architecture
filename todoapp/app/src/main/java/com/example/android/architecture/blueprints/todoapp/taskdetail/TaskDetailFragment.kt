@@ -24,35 +24,35 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.example.android.architecture.blueprints.todoapp.R
-import com.example.android.architecture.blueprints.todoapp.databinding.TaskdetailFragBinding
-import com.example.android.architecture.blueprints.todoapp.util.setupSnackbar
+import com.example.android.architecture.blueprints.todoapp.util.setVisible
+import com.example.android.architecture.blueprints.todoapp.util.showSnackbar
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.taskdetail_frag.no_data_container
+import kotlinx.android.synthetic.main.taskdetail_frag.refresh_layout
+import kotlinx.android.synthetic.main.taskdetail_frag.task_detail_complete
+import kotlinx.android.synthetic.main.taskdetail_frag.task_detail_container
+import kotlinx.android.synthetic.main.taskdetail_frag.task_detail_description
+import kotlinx.android.synthetic.main.taskdetail_frag.task_detail_title
 
 /**
  * Main UI for the task detail screen.
  */
 class TaskDetailFragment : Fragment() {
 
-    private lateinit var viewDataBinding: TaskdetailFragBinding
+    private lateinit var viewModel: TaskDetailViewModel
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        viewModel = (activity as TaskDetailActivity).obtainViewModel()
         setupFab()
-        viewDataBinding.viewmodel?.let {
-            view?.setupSnackbar(this, it.snackbarMessage, Snackbar.LENGTH_LONG)
-        }
-    }
-
-    private fun setupFab() {
-        activity?.findViewById<View>(R.id.fab_edit_task)?.setOnClickListener {
-            viewDataBinding.viewmodel?.editTask()
-        }
+        bindViewModel()
     }
 
     override fun onResume() {
         super.onResume()
-        viewDataBinding.viewmodel?.start(arguments?.getString(ARGUMENT_TASK_ID))
+        viewModel.start(arguments?.getString(ARGUMENT_TASK_ID))
     }
 
     override fun onCreateView(
@@ -60,24 +60,14 @@ class TaskDetailFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.taskdetail_frag, container, false)
-        viewDataBinding = TaskdetailFragBinding.bind(view).apply {
-            viewmodel = (activity as TaskDetailActivity).obtainViewModel()
-            listener = object : TaskDetailUserActionsListener {
-                override fun onCompleteChanged(v: View) {
-                    viewmodel?.setCompleted((v as CheckBox).isChecked)
-                }
-            }
-        }
-        viewDataBinding.setLifecycleOwner(this.viewLifecycleOwner)
         setHasOptionsMenu(true)
-        return view
+        return inflater.inflate(R.layout.taskdetail_frag, container, false)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_delete -> {
-                viewDataBinding.viewmodel?.deleteTask()
+                viewModel.deleteTask()
                 true
             }
             else -> false
@@ -86,6 +76,43 @@ class TaskDetailFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.taskdetail_fragment_menu, menu)
+    }
+
+    private fun bindViewModel() {
+        viewModel.apply {
+            dataLoading.observe(this@TaskDetailFragment, Observer {
+                refresh_layout.isRefreshing = it
+            })
+            isDataAvailable.observe(this@TaskDetailFragment, Observer {
+                no_data_container.setVisible(!it)
+                task_detail_container.setVisible(it)
+            })
+            task.observe(this@TaskDetailFragment, Observer {
+                task_detail_title.text = it.title
+                task_detail_description.text = it.description
+            })
+            snackbarMessage.observe(this@TaskDetailFragment, Observer { event ->
+                event.getContentIfNotHandled()?.let {
+                    view?.showSnackbar(getString(it), Snackbar.LENGTH_LONG)
+                }
+            })
+            completed.observe(this@TaskDetailFragment, Observer {
+                task_detail_complete.isChecked = it
+            })
+
+            task_detail_complete.setOnClickListener { view ->
+                viewModel.setCompleted((view as CheckBox).isChecked)
+            }
+            refresh_layout.setOnRefreshListener {
+                viewModel.onRefresh()
+            }
+        }
+    }
+
+    private fun setupFab() {
+        activity?.findViewById<View>(R.id.fab_edit_task)?.setOnClickListener {
+            viewModel.editTask()
+        }
     }
 
     companion object {

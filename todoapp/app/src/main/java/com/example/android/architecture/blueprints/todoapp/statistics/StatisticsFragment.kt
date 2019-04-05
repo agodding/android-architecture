@@ -22,7 +22,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.example.android.architecture.blueprints.todoapp.R
-import com.example.android.architecture.blueprints.todoapp.util.setVisibility
+import com.example.android.architecture.blueprints.todoapp.util.setVisible
 import kotlinx.android.synthetic.main.statistics_frag.active_tasks_label
 import kotlinx.android.synthetic.main.statistics_frag.completed_tasks_label
 import kotlinx.android.synthetic.main.statistics_frag.empty_tasks_label
@@ -55,13 +55,13 @@ class StatisticsFragment : Fragment() {
     private fun bindViewModel() {
         statisticsViewModel.apply {
             dataLoading.observe(this@StatisticsFragment, Observer {
-                loading_label.setVisibility(it)
-                statistics.setVisibility(!it)
+                loading_label.setVisible(it)
+                statistics.setVisible(!it)
             })
             empty.observe(this@StatisticsFragment, Observer {
-                empty_tasks_label.setVisibility(it)
-                active_tasks_label.setVisibility(!it)
-                completed_tasks_label.setVisibility(!it)
+                empty_tasks_label.setVisible(it)
+                active_tasks_label.setVisible(!it)
+                completed_tasks_label.setVisible(!it)
             })
             numberOfActiveTasks.observe(this@StatisticsFragment, Observer {
                 active_tasks_label.text = resources.getString(R.string.statistics_active_tasks, it)

@@ -65,7 +65,7 @@ class AddEditTaskFragment : Fragment() {
             dataLoading.observe(this@AddEditTaskFragment, Observer {
                 refresh_layout.isRefreshing = it
                 refresh_layout.isEnabled = it
-                container.visibility = if (it) View.VISIBLE else View.GONE
+                container.visibility = if (it) View.GONE else View.VISIBLE
             })
             title.observe(this@AddEditTaskFragment, Observer {
                 add_task_title.setText(it)

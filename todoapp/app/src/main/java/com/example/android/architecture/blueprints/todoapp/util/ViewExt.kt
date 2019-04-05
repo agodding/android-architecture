@@ -20,14 +20,6 @@ package com.example.android.architecture.blueprints.todoapp.util
  */
 
 import android.view.View
-import androidx.databinding.BindingAdapter
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.android.architecture.blueprints.todoapp.Event
-import com.example.android.architecture.blueprints.todoapp.ScrollChildSwipeRefreshLayout
-import com.example.android.architecture.blueprints.todoapp.tasks.TasksViewModel
 import com.google.android.material.snackbar.Snackbar
 
 /**
@@ -48,33 +40,6 @@ fun View.showSnackbar(snackbarText: String, timeLength: Int) {
     }
 }
 
-/**
- * Triggers a snackbar message when the value contained by snackbarTaskMessageLiveEvent is modified.
- */
-fun View.setupSnackbar(
-    lifecycleOwner: LifecycleOwner,
-    snackbarEvent: LiveData<Event<Int>>,
-    timeLength: Int
-) {
-
-    snackbarEvent.observe(lifecycleOwner, Observer { event ->
-        event.getContentIfNotHandled()?.let {
-            showSnackbar(context.getString(it), timeLength)
-        }
-    })
-}
-
-/**
- * Reloads the data when the pull-to-refresh is triggered.
- *
- * Creates the `android:onRefresh` for a [SwipeRefreshLayout].
- */
-@BindingAdapter("android:onRefresh")
-fun ScrollChildSwipeRefreshLayout.setSwipeRefreshLayoutOnRefreshListener(
-        viewModel: TasksViewModel) {
-    setOnRefreshListener { viewModel.loadTasks(true) }
-}
-
-fun View.setVisibility(visible: Boolean) {
+fun View.setVisible(visible: Boolean) {
     this.visibility = if (visible) View.VISIBLE else View.GONE
 }
