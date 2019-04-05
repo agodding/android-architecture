@@ -21,7 +21,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.example.android.architecture.blueprints.todoapp.R
-import com.example.android.architecture.blueprints.todoapp.util.showSnackbar
+import com.example.android.architecture.blueprints.todoapp.util.setVisible
+import com.example.android.architecture.blueprints.todoapp.util.setupSnackbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.addtask_frag.*
@@ -60,7 +61,7 @@ class AddEditTaskFragment : Fragment() {
             dataLoading.observe(this@AddEditTaskFragment, Observer {
                 refresh_layout.isRefreshing = it
                 refresh_layout.isEnabled = it
-                container.visibility = if (it) View.GONE else View.VISIBLE
+                container.setVisible(!it)
             })
             title.observe(this@AddEditTaskFragment, Observer {
                 add_task_title.setText(it)
@@ -68,11 +69,7 @@ class AddEditTaskFragment : Fragment() {
             description.observe(this@AddEditTaskFragment, Observer {
                 add_task_description.setText(it)
             })
-            snackbarMessage.observe(this@AddEditTaskFragment, Observer {
-                it.getContentIfNotHandled()?.let { stringRes ->
-                    view?.showSnackbar(getString(stringRes), Snackbar.LENGTH_LONG)
-                }
-            })
+            view?.setupSnackbar(this@AddEditTaskFragment, snackbarMessage, Snackbar.LENGTH_LONG)
         }
     }
 

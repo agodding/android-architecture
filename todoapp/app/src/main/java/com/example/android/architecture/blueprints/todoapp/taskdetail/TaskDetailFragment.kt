@@ -27,7 +27,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.util.setVisible
-import com.example.android.architecture.blueprints.todoapp.util.showSnackbar
+import com.example.android.architecture.blueprints.todoapp.util.setupSnackbar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.taskdetail_frag.*
 
@@ -86,14 +86,10 @@ class TaskDetailFragment : Fragment() {
                 task_detail_title.text = it.title
                 task_detail_description.text = it.description
             })
-            snackbarMessage.observe(this@TaskDetailFragment, Observer { event ->
-                event.getContentIfNotHandled()?.let {
-                    view?.showSnackbar(getString(it), Snackbar.LENGTH_LONG)
-                }
-            })
             completed.observe(this@TaskDetailFragment, Observer {
                 task_detail_complete.isChecked = it
             })
+            view?.setupSnackbar(this@TaskDetailFragment, snackbarMessage, Snackbar.LENGTH_LONG)
 
             task_detail_complete.setOnClickListener { view ->
                 viewModel.setCompleted((view as CheckBox).isChecked)

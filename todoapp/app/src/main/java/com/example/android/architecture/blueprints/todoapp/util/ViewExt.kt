@@ -20,6 +20,10 @@ package com.example.android.architecture.blueprints.todoapp.util
  */
 
 import android.view.View
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import com.example.android.architecture.blueprints.todoapp.Event
 import com.google.android.material.snackbar.Snackbar
 
 /**
@@ -39,6 +43,23 @@ fun View.showSnackbar(snackbarText: String, timeLength: Int) {
         show()
     }
 }
+
+/**
+ * Triggers a snackbar message when the value contained by snackbarTaskMessageLiveEvent is modified.
+ */
+fun View.setupSnackbar(
+    lifecycleOwner: LifecycleOwner,
+    snackbarEvent: LiveData<Event<Int>>,
+    timeLength: Int
+) {
+
+    snackbarEvent.observe(lifecycleOwner, Observer { event ->
+        event.getContentIfNotHandled()?.let {
+            showSnackbar(context.getString(it), timeLength)
+        }
+    })
+}
+
 
 fun View.setVisible(visible: Boolean) {
     this.visibility = if (visible) View.VISIBLE else View.GONE

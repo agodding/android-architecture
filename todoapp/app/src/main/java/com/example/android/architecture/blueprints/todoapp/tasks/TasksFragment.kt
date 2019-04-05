@@ -30,7 +30,7 @@ import androidx.lifecycle.Observer
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.util.setVisible
-import com.example.android.architecture.blueprints.todoapp.util.showSnackbar
+import com.example.android.architecture.blueprints.todoapp.util.setupSnackbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.tasks_frag.*
@@ -87,11 +87,6 @@ class TasksFragment : Fragment() {
 
     private fun bindViewModel() {
         viewModel.apply {
-            snackbarMessage.observe(this@TasksFragment, Observer { event ->
-                event.getContentIfNotHandled()?.let {
-                    view?.showSnackbar(getString(it), Snackbar.LENGTH_LONG)
-                }
-            })
             dataLoading.observe(this@TasksFragment, Observer {
                 refresh_layout.isRefreshing = it
             })
@@ -114,6 +109,7 @@ class TasksFragment : Fragment() {
             noTasksLabel.observe(this@TasksFragment, Observer {
                 noTasksMain.text = getString(it)
             })
+            view?.setupSnackbar(this@TasksFragment, snackbarMessage, Snackbar.LENGTH_LONG)
         }
 
         noTasksAdd.setOnClickListener {
