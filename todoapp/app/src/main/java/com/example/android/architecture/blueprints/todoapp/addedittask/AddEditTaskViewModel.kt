@@ -102,11 +102,7 @@ class AddEditTaskViewModel(
 
     // Called when clicking on fab.
     internal fun saveTask(title: String, description: String) {
-        if (title == null || description == null) {
-            _snackbarText.value =  Event(R.string.empty_task_message)
-            return
-        }
-        if (Task(title, description ?: "").isEmpty) {
+        if (Task(title, description).isEmpty) {
             _snackbarText.value =  Event(R.string.empty_task_message)
             return
         }

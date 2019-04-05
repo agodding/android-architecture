@@ -23,11 +23,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.util.setVisible
-import kotlinx.android.synthetic.main.statistics_frag.active_tasks_label
-import kotlinx.android.synthetic.main.statistics_frag.completed_tasks_label
-import kotlinx.android.synthetic.main.statistics_frag.empty_tasks_label
-import kotlinx.android.synthetic.main.statistics_frag.loading_label
-import kotlinx.android.synthetic.main.statistics_frag.statistics
+import kotlinx.android.synthetic.main.statistics_frag.*
 
 /**
  * Main UI for the statistics screen.

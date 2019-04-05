@@ -29,12 +29,7 @@ import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.util.setVisible
 import com.example.android.architecture.blueprints.todoapp.util.showSnackbar
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.taskdetail_frag.no_data_container
-import kotlinx.android.synthetic.main.taskdetail_frag.refresh_layout
-import kotlinx.android.synthetic.main.taskdetail_frag.task_detail_complete
-import kotlinx.android.synthetic.main.taskdetail_frag.task_detail_container
-import kotlinx.android.synthetic.main.taskdetail_frag.task_detail_description
-import kotlinx.android.synthetic.main.taskdetail_frag.task_detail_title
+import kotlinx.android.synthetic.main.taskdetail_frag.*
 
 /**
  * Main UI for the task detail screen.

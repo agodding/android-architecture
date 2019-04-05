@@ -33,13 +33,7 @@ import com.example.android.architecture.blueprints.todoapp.util.setVisible
 import com.example.android.architecture.blueprints.todoapp.util.showSnackbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.tasks_frag.filteringLabel
-import kotlinx.android.synthetic.main.tasks_frag.noTasks
-import kotlinx.android.synthetic.main.tasks_frag.noTasksAdd
-import kotlinx.android.synthetic.main.tasks_frag.noTasksMain
-import kotlinx.android.synthetic.main.tasks_frag.populated_tasks
-import kotlinx.android.synthetic.main.tasks_frag.refresh_layout
-import kotlinx.android.synthetic.main.tasks_frag.tasks_list
+import kotlinx.android.synthetic.main.tasks_frag.*
 import java.util.ArrayList
 
 /**

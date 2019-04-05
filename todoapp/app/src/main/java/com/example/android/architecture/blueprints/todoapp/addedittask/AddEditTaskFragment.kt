@@ -16,9 +16,7 @@
 package com.example.android.architecture.blueprints.todoapp.addedittask
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -26,17 +24,14 @@ import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.util.showSnackbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.addtask_frag.add_task_description
-import kotlinx.android.synthetic.main.addtask_frag.add_task_title
-import kotlinx.android.synthetic.main.addtask_frag.container
-import kotlinx.android.synthetic.main.addtask_frag.refresh_layout
+import kotlinx.android.synthetic.main.addtask_frag.*
 
 /**
  * Main UI for the add task screen. Users can enter a task title and description.
  */
 class AddEditTaskFragment : Fragment() {
 
-    lateinit var viewModel: AddEditTaskViewModel
+    private lateinit var viewModel: AddEditTaskViewModel
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
